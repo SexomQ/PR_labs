@@ -168,7 +168,6 @@ def handle_client(client_socket, client_address):
 
 
         elif message["type"] == "download":
-            
             room = message["payload"]["room"]
             name = message["payload"]["sender"]
             file_name = message["payload"]["file_name"]
@@ -176,32 +175,64 @@ def handle_client(client_socket, client_address):
             if os.path.exists(rooms_folsers.get(room) + "/" + file_name):
                 file = open(rooms_folsers.get(room) + "/" + file_name, "rb")
 
-                file_data = file.read(1024)
-                while file_data:
-                    return_message = {
-                        "type": "request_download",
-                        "payload": {
-                            "sender": name,
-                            "room": room,
-                            "file_name": file_name,
-                            "file": str(base64.b64encode(file_data))[2:-1]
-                        }
-                    }
-
-                    client_socket.send(json.dumps(return_message).encode('utf-8'))
+                if file_name.split(".")[1] == "txt":
                     file_data = file.read(1024)
-
-                return_message = {
-                        "type": "request_download",
-                        "payload": {
-                            "sender": name,
-                            "room": room,
-                            "file_name": file_name,
-                            "file": "EOF"
+                    while file_data:
+                        return_message = {
+                            "type": "request_download",
+                            "payload": {
+                                "sender": name,
+                                "room": room,
+                                "file_name": file_name,
+                                "file": str(base64.b64encode(file_data))[2:-1]
+                            }
                         }
-                    }
-                client_socket.send(json.dumps(return_message).encode('utf-8'))
-                file.close()
+
+                        client_socket.send(json.dumps(return_message).encode('utf-8'))
+                        file_data = file.read(1024)
+
+                    return_message = {
+                            "type": "request_download",
+                            "payload": {
+                                "sender": name,
+                                "room": room,
+                                "file_name": file_name,
+                                "file": "EOF"
+                            }
+                        }
+                    client_socket.send(json.dumps(return_message).encode('utf-8'))
+                    file.close()
+
+                elif file_name.split(".")[1] == "png":
+                    return_message = {
+                            "type": "request_download",
+                            "payload": {
+                                "sender": name,
+                                "room": room,
+                                "file_name": file_name,
+                                "file": ""
+                            }
+                        }
+                    client_socket.send(json.dumps(return_message).encode('utf-8'))
+
+                    try:
+                        file_ = open(file, 'rb')
+                        file_size = os.path.getsize(file_)
+                        client_socket.send(f"{file_size:<10}".encode('utf-8'))
+                        
+                        while True:
+                            file_data = file_.read(1024)
+                            if not file_data:
+                                break
+                            client_socket.send(file_data)
+                    except Exception as e:
+                        print(f"An error occurred: {e}")
+                    finally:
+                        file.close()
+
+                    
+
+                    
             
             else:
                 return_message = {

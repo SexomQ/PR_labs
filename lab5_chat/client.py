@@ -20,6 +20,20 @@ client_socket.connect((HOST, PORT))
 
 print(f"[*] Listening as {HOST}:{PORT}")
 
+def create_connection_for_binary_transfer(client_socket, file_name):
+    try:
+        file_size = int(client_socket.recv(10).decode("utf-8").strip())
+        received_size = 0
+        with open("1"+file_name, "wb") as file:
+            while received_size < file_size:
+                file_data = client_socket.recv(1024)
+                if not file_data:
+                    break
+                file.write(file_data)
+                received_size += len(file_data)
+        print("File has been received successfully.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 def receive_messages():
     while True:
@@ -41,15 +55,23 @@ def receive_messages():
             print(f"{message['payload']['message']}")
 
         if message["type"] == "request_download":
-            if message["payload"]["file"] == "#":
-                print(f"File {message['payload']['file_name']} does not exist")
-            elif message["payload"]["file"] == "EOF":
-                print(f"{message['payload']['file_name']} downloaded")
-            else:
-                file_name = message["payload"]["file_name"]
-                file = open(file_name, "wb")
-                file.write(base64.b64decode(message["payload"]["file"] + "=" * ((4 - len(message["payload"]["file"]) % 4) % 4)))
-                file.close()
+            if message["payload"]["file_name"].split(".")[1] == "txt":
+                if message["payload"]["file"] == "#":
+                    print(f"File {message['payload']['file_name']} does not exist")
+                elif message["payload"]["file"] == "EOF":
+                    print(f"{message['payload']['file_name']} downloaded")
+                else:
+                    file_name = message["payload"]["file_name"]
+                    file = open(file_name, "wb")
+                    file.write(base64.b64decode(message["payload"]["file"] + "=" * ((4 - len(message["payload"]["file"]) % 4) % 4)))
+                    file.close()
+            
+            elif message["payload"]["file_name"].split(".")[1] == "png":
+                if message["payload"]["file"] == "#":
+                    print(f"File {message['payload']['file_name']} does not exist")
+                else:
+                    file_name = message["payload"]["file_name"]
+                    create_connection_for_binary_transfer(client_socket, file_name)
 
 
 # Start the message reception thread
