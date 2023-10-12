@@ -23,7 +23,7 @@ def create_connection_for_binary_transfer(client_socket, room, file_name):
     try:
         file_size = int(client_socket.recv(10).decode("utf-8").strip())
         received_size = 0
-        with open(rooms_folsers.get(room) + "/" + file_name, "wb") as file:
+        with open(room + "-" + "Folder" + "/" + file_name, "wb") as file:
             while received_size < file_size:
                 file_data = client_socket.recv(1024)
                 if not file_data:
@@ -59,13 +59,21 @@ def handle_client(client_socket, client_address):
                 rooms_clients[room] = []
                 
             folder = room + "-" + "Folder"
-            
+            user_folder = name + "-" + "Folder"
+
             if not os.path.exists(folder):
                 rooms_folsers[room] = folder
                 os.mkdir(folder)
             
             elif folder not in rooms_folsers:
                 rooms_folsers[room] = folder
+
+            if not os.path.exists(user_folder):
+                users_folders[name] = user_folder
+                os.mkdir(user_folder)
+
+            elif folder not in users_folders:
+                users_folders[name] = user_folder
             
             rooms_clients[room].append([client_socket, name])
             for client in rooms_clients[room]:
@@ -205,23 +213,25 @@ def handle_client(client_socket, client_address):
 
                 elif file_name.split(".")[1] == "png":
                     return_message = {
-                            "type": "request_download",
-                            "payload": {
-                                "sender": name,
-                                "room": room,
-                                "file_name": file_name,
-                                "file": ""
-                            }
+                        "type": "request_download",
+                        "payload": {
+                            "sender": name,
+                            "room": room,
+                            "file_name": file_name,
+                            "file": ""
                         }
+                    }
                     client_socket.send(json.dumps(return_message).encode('utf-8'))
 
                     try:
-                        file_ = open(file, 'rb')
-                        file_size = os.path.getsize(file_)
+                        path = rooms_folsers.get(room) + '/' + file_name
+
+                        file = open(path, 'rb') # open the file in binary mode
+                        file_size = os.path.getsize(path)
                         client_socket.send(f"{file_size:<10}".encode('utf-8'))
                         
                         while True:
-                            file_data = file_.read(1024)
+                            file_data = file.read(1024)
                             if not file_data:
                                 break
                             client_socket.send(file_data)
@@ -256,6 +266,7 @@ def handle_client(client_socket, client_address):
 clients = []
 rooms_clients = {}
 rooms_folsers = {}
+users_folders = {}
 request_type = "json"
 
 
