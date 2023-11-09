@@ -3,11 +3,11 @@ from bs4 import BeautifulSoup
 import regex as re
 import json
 
-def main():
-    # make a json file with the links
-    json_dict = {"links": parse_page_links(url="https://999.md/ro/list/computers-and-office-equipment/processors")}
-    with open("links.json", "w") as file:
-        json.dump(json_dict, file)
+# def main():
+#     # make a json file with the links
+#     json_dict = {"links": parse_page_links(url="https://999.md/ro/list/computers-and-office-equipment/processors")}
+#     with open("links.json", "w") as file:
+#         json.dump(json_dict, file)
 
 def parse_page_links(url, url_list=list(), max_page_num = None, page_num = 0):
     if max_page_num is None or page_num < max_page_num:
@@ -21,6 +21,7 @@ def parse_page_links(url, url_list=list(), max_page_num = None, page_num = 0):
         #get next page
         next_page = go_next_page(soup)
         if next_page is not None:
+            
             parse_page_links(url=next_page, url_list=url_list, max_page_num=max_page_num, page_num=page_num+1)
         else:
             print("No more pages to parse")
@@ -55,5 +56,5 @@ def go_next_page(soup):
         next_page = None
     return next_page
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
