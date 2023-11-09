@@ -5,6 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 import regex as re
 import json
+import threading
 
 def main():
     connection = pika.BlockingConnection(
@@ -13,7 +14,7 @@ def main():
 
     channel.queue_declare(queue='task_queue', durable=True)
 
-    parse_page_links(url="https://999.md/ro/list/computers-and-office-equipment/processors", channel=channel, max_page_num=1)
+    parse_page_links(url="https://999.md/ro/list/computers-and-office-equipment/processors", channel=channel)
 
     connection.close()
 
@@ -24,7 +25,7 @@ def parse_page_links(url, url_list=list(), max_page_num = None, page_num = 0, ch
         soup = BeautifulSoup(page.content, "html.parser")
         
         #add links to list
-        url_list.extend(get_list_links(soup))
+        url_list = get_list_links(soup)
 
         #get next page
         next_page = go_next_page(soup)
@@ -43,7 +44,7 @@ def parse_page_links(url, url_list=list(), max_page_num = None, page_num = 0, ch
         else:
             print("No more pages to parse")
 
-    return url_list
+    return "Done"
 
 def get_list_links(soup):
     list = []

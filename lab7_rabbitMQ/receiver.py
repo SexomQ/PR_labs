@@ -24,7 +24,7 @@ def main():
 
 
 def callback(ch, method, properties, body):
-    db = TinyDB('tinydb.json')
+    db = TinyDB('tinydb.json', ensure_ascii = False, encoding = 'utf-8')
     Processors = Query()
 
     def get_data(url=None, db=None):
@@ -101,7 +101,8 @@ def callback(ch, method, properties, body):
         try:
             db.insert(final_data)
         except:
-            print("Error inserting into db")
+            print("Final inserting into db")
+            pass
 
     print(f" [x] Received {body.decode()}")
     get_data(url=body.decode(), db=db)
