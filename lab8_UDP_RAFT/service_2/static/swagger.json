@@ -1,0 +1,145 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Electro Scooter API",
+    "description": "API for managing electro scooters"
+    },
+    "paths": {
+        "/api/electro-scooters": {
+        "post": {
+                "summary": "Create a new electro scooter",
+                "parameters": [
+                {
+                    "name": "electroScooter",
+                    "in": "body",
+                    "description": "Electro scooter to create",
+                    "required": true,
+                    "type": "integer",
+                    "schema": {
+                    "$ref": "#/definitions/ElectroScooter"
+                    }
+                }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Electro scooter created"
+                    },
+                    "400": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/api/electro-scooters/{id}": {
+            "get": {
+                "summary": "Get an electro scooter by id",
+                "produces": [
+                "application/json"
+                ],
+                "parameters":[
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of electro scooter to return",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    }],
+                "responses":{
+                    "200": {
+                        "description": "Electro scooter",
+                        "schema": {
+                        "$ref": "#/definitions/ElectroScooter"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update an existing electro scooter",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of electro scooter to update",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "name": "electroScooter",
+                        "in": "body",
+                        "description": "Electro scooter to update",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ElectroScooter"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Electro scooter updated"
+                    },
+                    "404": {
+                        "description": "Electro scooter not found"
+                    },
+                    "500": {
+                        "description": "Invalid input"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete an existing scooter",
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of electro scooter to update",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    {
+                        "name": "X-Delete-Password",
+                        "in": "header",
+                        "description": "Password for deleting",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses":{
+                    "200": {
+                        "description": "Electro scooter is deleted"
+                    },
+                    "401": {
+                        "description": "Incorect password"
+                    },
+                    "404":{
+                        "description": "Electro scooter not found"
+                    },
+                    "500":{
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "ElectroScooter": {
+            "type": "object",
+            "properties": {
+                "name": {
+                "type": "string"
+                },
+                "battery_level": {
+                "type": "string"
+                }
+            }
+        }
+    }
+}
+

@@ -3,11 +3,12 @@ import producer
 import receiver
 
 def main():
-    threads = 100
-    workers = 100
+    threads = 10
+    workers = 10
+
+    producer.main()
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
-        executor.submit(producer.main)
         for i in range(workers):
             executor.submit(receiver.main)
 

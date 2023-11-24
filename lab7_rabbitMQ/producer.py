@@ -14,7 +14,7 @@ def main():
 
     channel.queue_declare(queue='task_queue', durable=True)
 
-    parse_page_links(url="https://999.md/ro/list/computers-and-office-equipment/processors", channel=channel)
+    parse_page_links(url="https://999.md/ro/list/computers-and-office-equipment/processors", channel=channel, max_page_num=1)
 
     connection.close()
 

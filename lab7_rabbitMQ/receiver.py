@@ -6,8 +6,13 @@ from bs4 import BeautifulSoup
 import regex as re
 import json
 from tinydb import TinyDB, Query
+import concurrent.futures
+from threading import Lock
+
+lock_db = Lock()
 
 def main():
+
 
     connection = pika.BlockingConnection(
         pika.ConnectionParameters(host='localhost'))
@@ -20,14 +25,13 @@ def main():
     channel.basic_qos(prefetch_count=1)
     channel.basic_consume(queue='task_queue', on_message_callback=callback)
 
-    channel.start_consuming()
 
+    channel.start_consuming()
 
 def callback(ch, method, properties, body):
     db = TinyDB('tinydb.json', ensure_ascii = False, encoding = 'utf-8')
-    Processors = Query()
 
-    def get_data(url=None, db=None):
+    def get_data(url=None, db=None):  
         soup = BeautifulSoup(requests.get(url).content, "html.parser")
 
         title_header = soup.find('header', class_ = "adPage__header")
@@ -96,12 +100,12 @@ def callback(ch, method, properties, body):
 
 
         final_data = {"title": title, "description": description, "features": features, "price": price, "region": region, "phone_no": phone_no, "stats":{ "owner_url": owner_url, "owner_name": owner_name, "updated": updated, "type_ad": type_ad, "views": views} }
-        print(final_data)
 
         try:
-            db.insert(final_data)
-        except:
-            print("Final inserting into db")
+            with lock_db:
+                db.insert(final_data)
+        except Exception as e:
+            # print(e)
             pass
 
     print(f" [x] Received {body.decode()}")
@@ -113,4 +117,6 @@ def callback(ch, method, properties, body):
     
 
 if __name__ == '__main__':
+    print("hii")
     main()
+    print("hii")
